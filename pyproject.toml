@@ -1,0 +1,15 @@
+[project]
+name = "my-kernels"
+version = "0.1.0"
+authors = [
+    { name = "Bowen Tan", email = "bowentan78@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["python"]

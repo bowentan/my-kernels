@@ -1,0 +1,6 @@
+CompileFlags:
+  Add:
+    - -xcuda
+    - -std=c++17
+Completion:
+  HeaderInsertion: Never
