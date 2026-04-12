@@ -1,4 +1,5 @@
 alias s := sync-runpod
+alias b := build
 
 [positional-arguments]
 sync-runpod addr dest_dir="/workspace/my-kernels":

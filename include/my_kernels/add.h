@@ -2,7 +2,7 @@
 
 #include <torch/extension.h>
 
-inline void check_vector_add_inputs(const torch::Tensor& a, const torch::Tensor& b) {
+inline void check_inputs(const torch::Tensor& a, const torch::Tensor& b) {
     TORCH_CHECK(a.defined(), "a must be defined");
     TORCH_CHECK(b.defined(), "b must be defined");
 
@@ -18,5 +18,5 @@ inline void check_vector_add_inputs(const torch::Tensor& a, const torch::Tensor&
                 "a and b must be float32 or float64 tensors");
 }
 
-torch::Tensor vector_add_cpu(torch::Tensor a, torch::Tensor b);
-torch::Tensor vector_add_cuda(torch::Tensor a, torch::Tensor b);
+torch::Tensor add_cpu(torch::Tensor a, torch::Tensor b);
+torch::Tensor add_cuda(torch::Tensor a, torch::Tensor b);

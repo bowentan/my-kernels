@@ -1,8 +1,5 @@
 from pathlib import Path
 
-import torch
-from torch.utils.cpp_extension import load, CUDA_HOME
-
 _LOADED = False
 
 
@@ -10,6 +7,19 @@ def load_lib() -> None:
     global _LOADED
     if _LOADED:
         return
+
+    # Try pre-built extension first (installed via pip install)
+    try:
+        from . import _C  # noqa: F401
+
+        _LOADED = True
+        return
+    except ImportError:
+        pass
+
+    # Fall back to JIT compilation (dev mode)
+    import torch
+    from torch.utils.cpp_extension import load, CUDA_HOME
 
     root = Path(__file__).resolve().parents[2]
 
@@ -26,7 +36,7 @@ def load_lib() -> None:
         extra_cflags.append("-DWITH_CUDA")
 
     load(
-        name=f"my_kernels_ext_{'cuda' if build_with_cuda else 'cpu'}",
+        name="_C",
         sources=[str(p) for p in srcs],
         extra_include_paths=[str(root / "include")],
         extra_cflags=extra_cflags,

@@ -1,19 +1,25 @@
-#include "my_kernels/vector_add.h"
+#include "my_kernels/add.h"
 
-#include <torch/extension.h>
+#include <torch/library.h>
+#include <Python.h>
 
 TORCH_LIBRARY(my_kernels, m) {
-    m.def("vector_add(Tensor a, Tensor b) -> Tensor");
+    m.def("add(Tensor a, Tensor b) -> Tensor");
 }
 
 TORCH_LIBRARY_IMPL(my_kernels, CPU, m) {
-    m.impl("vector_add", &vector_add_cpu);
+    m.impl("add", &add_cpu);
 }
 
 #ifdef WITH_CUDA
 TORCH_LIBRARY_IMPL(my_kernels, CUDA, m) {
-    m.impl("vector_add", &vector_add_cuda);
+    m.impl("add", &add_cuda);
 }
 #endif
 
-PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {}
+extern "C" PyObject* PyInit__C(void) {
+    static struct PyModuleDef module_def = {
+        PyModuleDef_HEAD_INIT, "_C", nullptr, -1, nullptr,
+    };
+    return PyModule_Create(&module_def);
+}

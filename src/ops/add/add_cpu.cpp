@@ -1,9 +1,9 @@
-#include "my_kernels/vector_add.h"
+#include "my_kernels/add.h"
 
 #include <ATen/Parallel.h>
 
-torch::Tensor vector_add_cpu(torch::Tensor a, torch::Tensor b) {
-    check_vector_add_inputs(a, b);
+torch::Tensor add_cpu(torch::Tensor a, torch::Tensor b) {
+    check_inputs(a, b);
     TORCH_CHECK(a.device().is_cpu(), "CPU tensors expected");
 
     auto a_c = a.contiguous();
@@ -11,7 +11,7 @@ torch::Tensor vector_add_cpu(torch::Tensor a, torch::Tensor b) {
     auto out = torch::empty_like(a_c);
     const int64_t n = a_c.numel();
 
-    AT_DISPATCH_FLOATING_TYPES(a_c.scalar_type(), "vector_add_cpu", [&] {
+    AT_DISPATCH_FLOATING_TYPES(a_c.scalar_type(), "add_cpu", [&] {
         const auto* a_ptr = a_c.data_ptr<scalar_t>();
         const auto* b_ptr = b_c.data_ptr<scalar_t>();
         auto* out_ptr = out.data_ptr<scalar_t>();

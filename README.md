@@ -1,9 +1,9 @@
-> [!INFO]
+> [!NOTE]
 > This repo is only for learning and practice purpose.
 
-# My CUDA Kernels
+# My Kernels
 
-A self-own CUDA kernel library for learning purpose.
+A self-own kernel library with CUDA and PyTorch integration for learning purpose.
 
 ## Included
 

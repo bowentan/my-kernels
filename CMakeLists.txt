@@ -34,23 +34,27 @@ if(BUILD_CUDA)
   endif()
 endif()
 
-Python3_add_library(${PROJECT_NAME} MODULE WITH_SOABI ${MY_KERNELS_SOURCES})
+set(_EXT_TARGET _C)
 
-target_include_directories(${PROJECT_NAME} PRIVATE
+Python3_add_library(${_EXT_TARGET} MODULE WITH_SOABI ${MY_KERNELS_SOURCES})
+
+target_include_directories(${_EXT_TARGET} PRIVATE
   ${PROJECT_SOURCE_DIR}/include
   ${Python3_INCLUDE_DIRS}
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(${_EXT_TARGET} PRIVATE
   ${TORCH_LIBRARIES}
 )
 
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_compile_features(${_EXT_TARGET} PRIVATE cxx_std_17)
 
 if(CMAKE_CUDA_COMPILER)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE WITH_CUDA)
-  set_target_properties(${PROJECT_NAME} PROPERTIES
+  target_compile_definitions(${_EXT_TARGET} PRIVATE WITH_CUDA)
+  set_target_properties(${_EXT_TARGET} PROPERTIES
     CUDA_STANDARD 17
     CUDA_STANDARD_REQUIRED ON
   )
 endif()
+
+install(TARGETS ${_EXT_TARGET} LIBRARY DESTINATION my_kernels)
