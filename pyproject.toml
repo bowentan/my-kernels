@@ -14,8 +14,10 @@ build-backend = "scikit_build_core.build"
 [tool.scikit-build]
 wheel.packages = ["python/my_kernels"]
 cmake.build-type = "Release"
+install.components = ["python"]
 
 [dependency-groups]
 dev = [
+    "ninja>=1.13.0",
     "pytest>=9.0.3",
 ]

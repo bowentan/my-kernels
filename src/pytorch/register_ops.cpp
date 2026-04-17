@@ -1,7 +1,7 @@
 #include "my_kernels/add.h"
 
-#include <torch/library.h>
 #include <Python.h>
+#include <torch/library.h>
 
 TORCH_LIBRARY(my_kernels, m) {
     m.def("add(Tensor a, Tensor b) -> Tensor");

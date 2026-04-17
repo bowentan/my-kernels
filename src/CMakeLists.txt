@@ -1,0 +1,71 @@
+set(LIB_TARGET my_kernels)
+
+add_library(${LIB_TARGET})
+add_library(my_kernels::my_kernels ALIAS ${LIB_TARGET})
+set_target_properties(${LIB_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+target_include_directories(${LIB_TARGET}
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_link_libraries(${LIB_TARGET}
+  PUBLIC
+    ${TORCH_LIBRARIES}
+)
+
+target_compile_features(${LIB_TARGET} PUBLIC cxx_std_17)
+
+add_subdirectory(ops)
+
+if(MY_KERNELS_WITH_CUDA)
+  target_compile_definitions(${LIB_TARGET} PUBLIC WITH_CUDA)
+  set_target_properties(${LIB_TARGET} PROPERTIES
+    CUDA_STANDARD 17
+    CUDA_STANDARD_REQUIRED ON
+  )
+endif()
+
+install(TARGETS ${LIB_TARGET}
+  EXPORT my_kernelsTargets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  COMPONENT ${MY_KERNELS_CMAKE_COMPONENT}
+)
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  COMPONENT ${MY_KERNELS_CMAKE_COMPONENT}
+)
+
+if(BUILD_PYTHON_EXTENSION)
+  set(EXT_TARGET _C)
+
+  Python3_add_library(${EXT_TARGET} MODULE WITH_SOABI
+    pytorch/register_ops.cpp
+  )
+
+  target_include_directories(${EXT_TARGET} PRIVATE
+    ${Python3_INCLUDE_DIRS}
+  )
+
+  target_link_libraries(${EXT_TARGET} PRIVATE
+    ${LIB_TARGET}
+  )
+
+  if(MY_KERNELS_WITH_CUDA)
+    set_target_properties(${EXT_TARGET} PROPERTIES
+      CUDA_STANDARD 17
+      CUDA_STANDARD_REQUIRED ON
+    )
+  endif()
+
+  install(TARGETS ${EXT_TARGET}
+    LIBRARY DESTINATION my_kernels
+    COMPONENT ${MY_KERNELS_PYTHON_COMPONENT}
+    EXCLUDE_FROM_ALL
+  )
+endif()

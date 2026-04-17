@@ -7,54 +7,66 @@ project(my_kernels
 )
 
 option(BUILD_CUDA "Build CUDA kernels if a CUDA compiler is available." ON)
+option(BUILD_PYTHON_EXTENSION "Build Python extension module _C." ON)
+
+set(MY_KERNELS_CMAKE_COMPONENT cpp)
+set(MY_KERNELS_PYTHON_COMPONENT python)
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 
 find_package(Torch REQUIRED)
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
+if(BUILD_PYTHON_EXTENSION)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
+endif()
 
-# PyTorch's CMake docs still show applying TORCH_CXX_FLAGS after find_package(Torch).
+# PyTorch's CMake docs still show applying TORCH_CXX_FLAGS
+# after find_package(Torch).
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 include(CheckLanguage)
 
-set(MY_KERNELS_SOURCES
-  src/pytorch/register_ops.cpp
-  src/ops/add/add_cpu.cpp
-)
+set(MY_KERNELS_WITH_CUDA OFF)
 
 if(BUILD_CUDA)
   check_language(CUDA)
   if(CMAKE_CUDA_COMPILER)
     enable_language(CUDA)
-    list(APPEND MY_KERNELS_SOURCES
-      src/ops/add/add_cuda.cu
+    set(MY_KERNELS_WITH_CUDA ON)
+    message(STATUS
+      "CUDA compiler found: ${CMAKE_CUDA_COMPILER}. Building CUDA kernels."
     )
-    message(STATUS "CUDA compiler found: ${CMAKE_CUDA_COMPILER}. Building CUDA kernels.")
   else()
     message(WARNING "CUDA compiler not found. CUDA kernels will not be built.")
   endif()
 endif()
 
-set(_EXT_TARGET _C)
+add_subdirectory(src)
 
-Python3_add_library(${_EXT_TARGET} MODULE WITH_SOABI ${MY_KERNELS_SOURCES})
-
-target_include_directories(${_EXT_TARGET} PRIVATE
-  ${PROJECT_SOURCE_DIR}/include
-  ${Python3_INCLUDE_DIRS}
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/my_kernelsConfigVersion.cmake"
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY SameMajorVersion
 )
 
-target_link_libraries(${_EXT_TARGET} PRIVATE
-  ${TORCH_LIBRARIES}
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/my_kernelsConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/my_kernelsConfig.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/my_kernels"
 )
 
-target_compile_features(${_EXT_TARGET} PRIVATE cxx_std_17)
+install(
+  EXPORT my_kernelsTargets
+  FILE my_kernelsTargets.cmake
+  NAMESPACE my_kernels::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/my_kernels"
+  COMPONENT ${MY_KERNELS_CMAKE_COMPONENT}
+)
 
-if(CMAKE_CUDA_COMPILER)
-  target_compile_definitions(${_EXT_TARGET} PRIVATE WITH_CUDA)
-  set_target_properties(${_EXT_TARGET} PROPERTIES
-    CUDA_STANDARD 17
-    CUDA_STANDARD_REQUIRED ON
-  )
-endif()
-
-install(TARGETS ${_EXT_TARGET} LIBRARY DESTINATION my_kernels)
+install(
+  FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/my_kernelsConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/my_kernelsConfigVersion.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/my_kernels"
+  COMPONENT ${MY_KERNELS_CMAKE_COMPONENT}
+)

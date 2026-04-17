@@ -1,6 +1,6 @@
 #pragma once
 
-#include <torch/extension.h>
+#include <torch/torch.h>
 
 inline void check_inputs(const torch::Tensor& a, const torch::Tensor& b) {
     TORCH_CHECK(a.defined(), "a must be defined");
