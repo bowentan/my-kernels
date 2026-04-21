@@ -18,5 +18,6 @@ inline void check_inputs(const torch::Tensor& a, const torch::Tensor& b) {
                 "a and b must be float32 or float64 tensors");
 }
 
+torch::Tensor add(torch::Tensor a, torch::Tensor b);
 torch::Tensor add_cpu(torch::Tensor a, torch::Tensor b);
 torch::Tensor add_cuda(torch::Tensor a, torch::Tensor b);

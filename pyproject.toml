@@ -21,3 +21,9 @@ dev = [
     "ninja>=1.13.0",
     "pytest>=9.0.3",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/python"]
+markers = [
+    "perf: performance-oriented smoke checks that are opt-in for regular runs",
+]

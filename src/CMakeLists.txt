@@ -43,9 +43,15 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
 
 if(BUILD_PYTHON_EXTENSION)
   set(EXT_TARGET _C)
+  set(MY_KERNELS_PYTHON_BUILD_ROOT "${PROJECT_BINARY_DIR}/python")
+  set(MY_KERNELS_PYTHON_PACKAGE_DIR "${MY_KERNELS_PYTHON_BUILD_ROOT}/my_kernels")
 
   Python3_add_library(${EXT_TARGET} MODULE WITH_SOABI
     pytorch/register_ops.cpp
+  )
+
+  set_target_properties(${EXT_TARGET} PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "${MY_KERNELS_PYTHON_PACKAGE_DIR}"
   )
 
   target_include_directories(${EXT_TARGET} PRIVATE
@@ -62,6 +68,19 @@ if(BUILD_PYTHON_EXTENSION)
       CUDA_STANDARD_REQUIRED ON
     )
   endif()
+
+  add_custom_command(TARGET ${EXT_TARGET} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${MY_KERNELS_PYTHON_PACKAGE_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${PROJECT_SOURCE_DIR}/python/my_kernels/__init__.py"
+      "${MY_KERNELS_PYTHON_PACKAGE_DIR}/__init__.py"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${PROJECT_SOURCE_DIR}/python/my_kernels/_load_lib.py"
+      "${MY_KERNELS_PYTHON_PACKAGE_DIR}/_load_lib.py"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      "${PROJECT_SOURCE_DIR}/python/my_kernels/ops.py"
+      "${MY_KERNELS_PYTHON_PACKAGE_DIR}/ops.py"
+  )
 
   install(TARGETS ${EXT_TARGET}
     LIBRARY DESTINATION my_kernels

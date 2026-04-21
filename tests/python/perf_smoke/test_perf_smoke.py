@@ -1,9 +1,11 @@
 import torch
+import pytest
 
-from benchmarks.utils.timer import bench
+from benchmarks.python.utils.timer import bench
 import my_kernels
 
 
+@pytest.mark.perf
 def test_add_perf_smoke():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 

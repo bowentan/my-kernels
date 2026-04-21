@@ -3,7 +3,7 @@ import torch
 from torch.testing import assert_close
 
 import my_kernels
-from tests.reference.add import add_ref
+from tests.python.reference.add import add_ref
 
 DEVICES = ["cpu"] + (["cuda"] if torch.cuda.is_available() else [])
 DTYPES = [torch.float32, torch.float64]

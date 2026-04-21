@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 _LOADED = False
@@ -15,7 +16,8 @@ def load_lib() -> None:
         _LOADED = True
         return
     except ImportError:
-        pass
+        if os.environ.get("MY_KERNELS_DISABLE_JIT") == "1":
+            raise
 
     # Fall back to JIT compilation (dev mode)
     import torch
