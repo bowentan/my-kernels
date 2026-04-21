@@ -1,6 +1,6 @@
 import torch
 
-from benchmarks.utils.timer import bench
+from benchmarks.python.utils.timer import bench
 import my_kernels
 
 

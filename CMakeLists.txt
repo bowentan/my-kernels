@@ -8,12 +8,14 @@ project(my_kernels
 
 option(BUILD_CUDA "Build CUDA kernels if a CUDA compiler is available." ON)
 option(BUILD_PYTHON_EXTENSION "Build Python extension module _C." ON)
+option(BUILD_BENCHMARKS "Build native C++ benchmark executables." ON)
 
 set(MY_KERNELS_CMAKE_COMPONENT cpp)
 set(MY_KERNELS_PYTHON_COMPONENT python)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(CTest)
 
 find_package(Torch REQUIRED)
 if(BUILD_PYTHON_EXTENSION)
@@ -42,6 +44,14 @@ if(BUILD_CUDA)
 endif()
 
 add_subdirectory(src)
+
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
+
+if(BUILD_BENCHMARKS)
+  add_subdirectory(benchmarks)
+endif()
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/my_kernelsConfigVersion.cmake"

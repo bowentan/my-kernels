@@ -1,4 +1,5 @@
 target_sources(${LIB_TARGET} PRIVATE
+  add.cpp
   add_cpu.cpp
 )
 

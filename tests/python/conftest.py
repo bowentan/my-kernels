@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 PKG_ROOT = ROOT / "python"
 
 if str(PKG_ROOT) not in sys.path:
